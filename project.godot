@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="FlappyBirdClone"
-run/main_scene="uid://cwrrp71axtntp"
+run/main_scene="uid://dphw83up3o4hs"
 config/features=PackedStringArray("4.5", "Mobile")
 config/icon="res://icon.svg"
 
