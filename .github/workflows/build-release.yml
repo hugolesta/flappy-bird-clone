@@ -1,0 +1,134 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+env:
+  GODOT_VERSION: 4.5-stable
+
+jobs:
+  export-game:
+    name: Export game for ${{ matrix.preset }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - preset: "Linux/X11"
+            platform: linux
+            artifact_name: FlappyBirdClone-linux-x86_64
+            artifact_path: build/linux/
+          - preset: "Windows Desktop"
+            platform: windows
+            artifact_name: FlappyBirdClone-windows
+            artifact_path: build/windows/
+          - preset: "macOS"
+            platform: macos
+            artifact_name: FlappyBirdClone-macos
+            artifact_path: build/macos/
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Godot
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: true
+
+      - name: Verify Godot installation
+        run: |
+          godot --version
+          godot --headless --export-pack test /tmp/test.pck --quit || true
+
+      - name: Create build directories
+        run: |
+          mkdir -p build/linux
+          mkdir -p build/windows
+          mkdir -p build/macos
+
+      - name: Export game for ${{ matrix.preset }}
+        run: |
+          godot --headless --export-release "${{ matrix.preset }}" --quit
+          echo "Export completed for ${{ matrix.preset }}"
+
+      - name: List exported files
+        run: |
+          echo "Contents of ${{ matrix.artifact_path }}:"
+          ls -lah ${{ matrix.artifact_path }}
+
+      - name: Prepare Linux artifact
+        if: matrix.platform == 'linux'
+        run: |
+          cd build/linux
+          chmod +x FlappyBirdClone.x86_64
+          tar -czf ../../FlappyBirdClone-linux-x86_64.tar.gz *
+          cd ../..
+
+      - name: Prepare Windows artifact
+        if: matrix.platform == 'windows'
+        run: |
+          cd build/windows
+          zip -r ../../FlappyBirdClone-windows.zip *
+          cd ../..
+
+      - name: Prepare macOS artifact
+        if: matrix.platform == 'macos'
+        run: |
+          cd build/macos
+          if [ -f FlappyBirdClone.zip ]; then
+            mv FlappyBirdClone.zip ../../FlappyBirdClone-macos.zip
+          else
+            zip -r ../../FlappyBirdClone-macos.zip *
+          fi
+          cd ../..
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_name }}.*
+          retention-days: 7
+
+  create-release:
+    name: Create GitHub Release
+    needs: export-game
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List downloaded artifacts
+        run: |
+          echo "Downloaded artifacts:"
+          find artifacts -type f -ls
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            artifacts/FlappyBirdClone-linux-x86_64/*.tar.gz
+            artifacts/FlappyBirdClone-windows/*.zip
+            artifacts/FlappyBirdClone-macos/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
