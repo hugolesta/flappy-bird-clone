@@ -1,0 +1,58 @@
+[gd_scene load_steps=7 format=3 uid="uid://b8dso5ckhe82b"]
+
+[ext_resource type="Texture2D" uid="uid://cqejf74ebsjqx" path="res://FlappyBirdAssets/Sprites/rockSnowDown.png" id="1_f7iuw"]
+[ext_resource type="Script" uid="uid://y61hufyrac6r" path="res://scenes/obstacle/obstacle.gd" id="1_osovj"]
+[ext_resource type="Texture2D" uid="uid://dtfi2ha7ihubr" path="res://FlappyBirdAssets/Sprites/rockSnow.png" id="2_1ys07"]
+[ext_resource type="AudioStream" uid="uid://btxwdnahv1gc" path="res://FlappyBirdAssets/Audio/sfx_hit.wav" id="4_8qciu"]
+[ext_resource type="AudioStream" uid="uid://c6ebci6361y4v" path="res://FlappyBirdAssets/Audio/sfx_point.wav" id="5_4wwja"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_osovj"]
+size = Vector2(11, 85)
+
+[node name="Obstacle" type="Node2D"]
+position = Vector2(0, -103)
+scale = Vector2(2, 2)
+script = ExtResource("1_osovj")
+
+[node name="TopArea" type="Area2D" parent="."]
+position = Vector2(1, -271.5)
+
+[node name="Sprite2D" type="Sprite2D" parent="TopArea"]
+position = Vector2(0, -22.5)
+texture = ExtResource("1_f7iuw")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="TopArea"]
+position = Vector2(0, -22)
+polygon = PackedVector2Array(-54, -118, 52, -119, 16, 116, 10, 117)
+
+[node name="BottomArea" type="Area2D" parent="."]
+position = Vector2(0, 49)
+
+[node name="Sprite2D" type="Sprite2D" parent="BottomArea"]
+texture = ExtResource("2_1ys07")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="BottomArea"]
+polygon = PackedVector2Array(-53, 118, 53, 118, 15, -118, 10, -118)
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
+position = Vector2(71.5, -135)
+rect = Rect2(-10, -19.5, 20, 74)
+
+[node name="ScoreArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ScoreArea"]
+position = Vector2(42.5, -118)
+shape = SubResource("RectangleShape2D_osovj")
+
+[node name="HitSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_8qciu")
+bus = &"SFX"
+
+[node name="ScoreSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_4wwja")
+bus = &"SFX"
+
+[connection signal="body_entered" from="TopArea" to="." method="_on_area_body_entered"]
+[connection signal="body_entered" from="BottomArea" to="." method="_on_area_body_entered"]
+[connection signal="screen_exited" from="VisibleOnScreenNotifier2D" to="." method="_on_visible_on_screen_notifier_2d_screen_exited"]
+[connection signal="body_entered" from="ScoreArea" to="." method="_on_score_area_body_entered"]

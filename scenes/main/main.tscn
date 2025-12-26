@@ -1,0 +1,38 @@
+[gd_scene load_steps=8 format=3 uid="uid://dphw83up3o4hs"]
+
+[ext_resource type="Texture2D" uid="uid://duiy5x8u0hr7r" path="res://FlappyBirdAssets/Sprites/background.png" id="1_hyk8p"]
+[ext_resource type="Script" uid="uid://cf6bk0apttjdq" path="res://scenes/main/main.gd" id="1_k2fmo"]
+[ext_resource type="PackedScene" uid="uid://cwrrp71axtntp" path="res://scenes/player/player.tscn" id="2_iuonh"]
+[ext_resource type="AudioStream" uid="uid://dwmtu5w1krorr" path="res://FlappyBirdAssets/Audio/sfx_wing.wav" id="4_hujxm"]
+[ext_resource type="PackedScene" uid="uid://dcmg4vsxe1i25" path="res://scenes/extra/spawner.tscn" id="4_l3cfh"]
+[ext_resource type="PackedScene" uid="uid://b8v1k2gqb3b2w" path="res://scenes/ground/ground.tscn" id="5_6q06x"]
+[ext_resource type="PackedScene" uid="uid://dhicanevcx26s" path="res://scenes/game_ui/game_ui.tscn" id="6_ow5a4"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_k2fmo")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-2, -53)
+scale = Vector2(2, 2)
+texture = ExtResource("1_hyk8p")
+centered = false
+
+[node name="Player" parent="." instance=ExtResource("2_iuonh")]
+position = Vector2(210, 358)
+jump_force = 320.0
+
+[node name="JumpAudio" type="AudioStreamPlayer2D" parent="Player"]
+stream = ExtResource("4_hujxm")
+bus = &"SFX"
+
+[node name="Spawner" parent="." instance=ExtResource("4_l3cfh")]
+
+[node name="Ground" parent="." instance=ExtResource("5_6q06x")]
+position = Vector2(0, 819)
+
+[node name="GameUI" parent="." instance=ExtResource("6_ow5a4")]
+
+[connection signal="on_game_started" from="Player" to="." method="_on_player_on_game_started"]
+[connection signal="on_obstacle_crash" from="Spawner" to="." method="_on_spawner_on_obstacle_crash"]
+[connection signal="on_player_score" from="Spawner" to="." method="_on_spawner_on_player_score"]
+[connection signal="on_player_crash" from="Ground" to="." method="_on_ground_on_player_crash"]
