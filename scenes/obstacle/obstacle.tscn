@@ -10,7 +10,7 @@
 size = Vector2(11, 85)
 
 [node name="Obstacle" type="Node2D"]
-position = Vector2(0, -103)
+position = Vector2(-2, -97)
 scale = Vector2(2, 2)
 script = ExtResource("1_osovj")
 
@@ -29,19 +29,21 @@ polygon = PackedVector2Array(-54, -118, 52, -119, 16, 116, 10, 117)
 position = Vector2(0, 49)
 
 [node name="Sprite2D" type="Sprite2D" parent="BottomArea"]
+position = Vector2(0, 30.5)
 texture = ExtResource("2_1ys07")
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="BottomArea"]
+position = Vector2(0, 28)
 polygon = PackedVector2Array(-53, 118, 53, 118, 15, -118, 10, -118)
 
 [node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
-position = Vector2(71.5, -135)
+position = Vector2(62, -125.5)
 rect = Rect2(-10, -19.5, 20, 74)
 
 [node name="ScoreArea" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ScoreArea"]
-position = Vector2(42.5, -118)
+position = Vector2(36, -106.5)
 shape = SubResource("RectangleShape2D_osovj")
 
 [node name="HitSound" type="AudioStreamPlayer2D" parent="."]
